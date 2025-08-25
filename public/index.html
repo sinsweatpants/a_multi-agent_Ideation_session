@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جلسة تطوير القصص متعددة الوكلاء</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Simple spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+
+    <div id="app-container" class="container mx-auto p-4 md:p-8 max-w-7xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-5xl font-bold text-gray-900">نظام تطوير القصص متعدد الوكلاء</h1>
+            <p class="text-lg text-gray-600 mt-2">مرحباً بك في جلسة العصف الذهني للقصص</p>
+        </header>
+
+        <!-- Step 1: API Key Input -->
+        <section id="api-key-section" class="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
+            <h2 class="text-2xl font-semibold mb-4">الخطوة 1: إعداد الجلسة</h2>
+            <p class="text-gray-600 mb-4">لتفعيل فريق الخبراء المكون من 11 وكيلاً، يرجى تقديم مفتاح API الخاص بك. سيتم استخدامه بشكل آمن من جانب العميل فقط.</p>
+            <div class="flex items-center gap-4">
+                <input type="password" id="api-key-input" placeholder="أدخل مفتاح Gemini API الخاص بك" class="flex-grow p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button id="start-session-btn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition duration-300">بدء الجلسة</button>
+            </div>
+            <p id="api-key-error" class="text-red-500 text-sm mt-2 hidden">يرجى إدخال مفتاح API صالح.</p>
+        </section>
+
+        <!-- Step 2: Creative Brief Input -->
+        <section id="creative-brief-section" class="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto hidden">
+            <h2 class="text-2xl font-semibold mb-4">الخطوة 2: الهدف الإبداعي</h2>
+            <p class="text-gray-600 mb-4">أدخل موجز القصة الخاص بك. قم بتضمين الفكرة الأساسية، الشخصيات الرئيسية، النوع الأدبي، وأي تفضيلات أخرى.</p>
+            <textarea id="creative-brief-input" rows="10" placeholder="اكتب موجز القصة هنا..." class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            <button id="generate-ideas-btn" class="mt-4 bg-green-600 text-white font-bold py-3 px-8 rounded-md hover:bg-green-700 transition duration-300 w-full">توليد الأفكار</button>
+        </section>
+
+        <!-- Step 3: Results Display -->
+        <section id="results-section" class="mt-8 hidden">
+            <!-- Status Indicator -->
+            <div id="status-indicator" class="text-center p-6 bg-white rounded-lg shadow-md max-w-4xl mx-auto">
+                <div class="loader mx-auto"></div>
+                <p id="status-text" class="text-xl font-semibold text-gray-700 mt-4">جاري تحليل طلبك... قد تستغرق هذه العملية عدة دقائق.</p>
+            </div>
+
+            <!-- Main Results Container -->
+            <div id="results-content" class="hidden">
+                <!-- Ideas Columns -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <!-- Idea 1 -->
+                    <article id="idea-1-container" class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-bold mb-4 border-b pb-2">الفكرة 1</h3>
+                        <div id="idea-1-content" class="prose max-w-none"></div>
+                        <h4 class="text-xl font-semibold mt-6 mb-3">مراجعات الوكلاء</h4>
+                        <div id="idea-1-reviews" class="space-y-4"></div>
+                    </article>
+                    <!-- Idea 2 -->
+                    <article id="idea-2-container" class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-bold mb-4 border-b pb-2">الفكرة 2</h3>
+                        <div id="idea-2-content" class="prose max-w-none"></div>
+                        <h4 class="text-xl font-semibold mt-6 mb-3">مراجعات الوكلاء</h4>
+                        <div id="idea-2-reviews" class="space-y-4"></div>
+                    </article>
+                </div>
+
+                <!-- Tournament Section -->
+                <article class="bg-white p-6 rounded-lg shadow-md mb-8">
+                    <h3 class="text-2xl font-bold mb-4">أداء البطولة (نقاش الوكلاء)</h3>
+                    <div id="tournament-content" class="prose max-w-none space-y-4"></div>
+                </article>
+
+                <!-- Final Decision Section -->
+                <article class="bg-blue-100 border-l-4 border-blue-500 text-blue-800 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-3xl font-bold mb-4">الفكرة الأفضل</h3>
+                    <div id="final-decision-content" class="prose max-w-none text-lg"></div>
+                </article>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
