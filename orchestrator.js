@@ -35,10 +35,17 @@ async function callAgent(apiKey, agent, taskPrompt) {
             },
             { timeout: 90000 } // 90 second timeout
         );
-        return response.data.candidates[0].content.parts[0].text;
+        // Ensure you correctly parse the response to return only the generated text
+        if (response.data.candidates && response.data.candidates[0].content && response.data.candidates[0].content.parts) {
+            return response.data.candidates[0].content.parts[0].text;
+        } else {
+             throw new Error('Invalid response structure from Gemini API.');
+        }
     } catch (error) {
         console.error(`Error calling Gemini API for ${agent.name}:`, error.response ? error.response.data : error.message);
-        throw new Error(`Gemini API Error for ${agent.name}: ${error.response ? error.response.data.error.message : error.message}`);
+         // Provide a more descriptive error message
+        const errorMessage = error.response ? error.response.data.error.message : error.message;
+        throw new Error(`Gemini API Error for ${agent.name}: ${errorMessage}`);
     }
 }
 
@@ -71,10 +78,16 @@ async function runStoryDevelopment(apiKey, creativeBrief) {
     const idea2Reviews = [];
     reviews.forEach(review => {
         const text = review.reviewText;
-        const idea1Match = text.match(/Review of Idea 1:([\s\S]*?)Review of Idea 2:/i);
+        // Use a more robust method to split reviews
+        const idea1Match = text.match(/Review of Idea 1:([\s\S]*?)(Review of Idea 2:|$)/i);
         const idea2Match = text.match(/Review of Idea 2:([\s\S]*)/i);
-        if (idea1Match && idea1Match[1]) idea1Reviews.push({ agent: review.agent, text: idea1Match[1].trim() });
-        if (idea2Match && idea2Match[1]) idea2Reviews.push({ agent: review.agent, text: idea2Match[1].trim() });
+
+        if (idea1Match && idea1Match[1]) {
+            idea1Reviews.push({ agent: review.agent, text: idea1Match[1].trim() });
+        }
+        if (idea2Match && idea2Match[1]) {
+            idea2Reviews.push({ agent: review.agent, text: idea2Match[1].trim() });
+        }
     });
 
     // == STEP 3: THE TOURNAMENT (DEBATE) ==
