@@ -19,7 +19,14 @@ const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/
  * @throws {Error} Throws an error if the API call fails.
  */
 async function callAgent(apiKey, agent, taskPrompt) {
-    // The full prompt combines the agent's core guide with the specific task.
+    // If the agent exposes a run method, let it perform its own LLM call. This keeps
+    // the orchestrator as a pure coordinator. Otherwise fall back to the in-file
+    // HTTP call behavior for backwards compatibility.
+    if (agent && typeof agent.run === 'function') {
+        return agent.run(apiKey, taskPrompt);
+    }
+
+    // Fallback: the orchestrator does the LLM call itself using the agent.guide.
     const fullPrompt = `${agent.guide}\n\n**Your Current Task:**\n${taskPrompt}`;
     try {
         const response = await axios.post(
@@ -35,16 +42,14 @@ async function callAgent(apiKey, agent, taskPrompt) {
             },
             { timeout: 90000 } // 90 second timeout
         );
-        // Ensure you correctly parse the response to return only the generated text
         if (response.data.candidates && response.data.candidates[0].content && response.data.candidates[0].content.parts) {
             return response.data.candidates[0].content.parts[0].text;
         } else {
-             throw new Error('Invalid response structure from Gemini API.');
+            throw new Error('Invalid response structure from Gemini API.');
         }
     } catch (error) {
         console.error(`Error calling Gemini API for ${agent.name}:`, error.response ? error.response.data : error.message);
-         // Provide a more descriptive error message
-        const errorMessage = error.response ? error.response.data.error.message : error.message;
+        const errorMessage = error.response ? (error.response.data && error.response.data.error ? error.response.data.error.message : JSON.stringify(error.response.data)) : error.message;
         throw new Error(`Gemini API Error for ${agent.name}: ${errorMessage}`);
     }
 }
