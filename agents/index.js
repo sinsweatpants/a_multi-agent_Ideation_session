@@ -9,6 +9,7 @@ const themeAgent = require('./theme');
 const genreToneAgent = require('./genreTone');
 const pacingAgent = require('./pacing');
 const conflictTensionAgent = require('./conflictTension');
+const audiencePersonaAgent = require('./audiencePersonaAgent');
 
 const allAgents = [
     storyArchitectAgent,
@@ -22,6 +23,7 @@ const allAgents = [
     genreToneAgent,
     pacingAgent,
     conflictTensionAgent,
+    audiencePersonaAgent,
 ];
 
 module.exports = {
@@ -37,4 +39,5 @@ module.exports = {
     genreToneAgent,
     pacingAgent,
     conflictTensionAgent,
+    audiencePersonaAgent,
 };

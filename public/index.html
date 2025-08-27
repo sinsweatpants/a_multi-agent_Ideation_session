@@ -57,37 +57,19 @@
                 <p id="status-text" class="text-xl font-semibold text-gray-700 mt-4">جاري تحليل طلبك... قد تستغرق هذه العملية عدة دقائق.</p>
             </div>
 
-            <!-- Main Results Container -->
-            <div id="results-content" class="hidden">
-                <!-- Ideas Columns -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                    <!-- Idea 1 -->
-                    <article id="idea-1-container" class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-2xl font-bold mb-4 border-b pb-2">الفكرة 1</h3>
-                        <div id="idea-1-content" class="prose max-w-none"></div>
-                        <h4 class="text-xl font-semibold mt-6 mb-3">مراجعات الوكلاء</h4>
-                        <div id="idea-1-reviews" class="space-y-4"></div>
-                    </article>
-                    <!-- Idea 2 -->
-                    <article id="idea-2-container" class="bg-white p-6 rounded-lg shadow-md">
-                        <h3 class="text-2xl font-bold mb-4 border-b pb-2">الفكرة 2</h3>
-                        <div id="idea-2-content" class="prose max-w-none"></div>
-                        <h4 class="text-xl font-semibold mt-6 mb-3">مراجعات الوكلاء</h4>
-                        <div id="idea-2-reviews" class="space-y-4"></div>
-                    </article>
-                </div>
-
-                <!-- Tournament Section -->
-                <article class="bg-white p-6 rounded-lg shadow-md mb-8">
-                    <h3 class="text-2xl font-bold mb-4">أداء البطولة (نقاش الوكلاء)</h3>
-                    <div id="tournament-content" class="prose max-w-none space-y-4"></div>
-                </article>
-
-                <!-- Final Decision Section -->
-                <article class="bg-blue-100 border-l-4 border-blue-500 text-blue-800 p-6 rounded-lg shadow-lg">
-                    <h3 class="text-3xl font-bold mb-4">الفكرة الأفضل</h3>
-                    <div id="final-decision-content" class="prose max-w-none text-lg"></div>
-                </article>
+            <!-- Main Results Container - This will be populated dynamically by script.js -->
+            <div id="results-content" class="hidden space-y-8">
+                <section id="divergence-section" class="bg-white p-6 rounded-lg shadow-md"></section>
+                <section id="selection-section" class="bg-white p-6 rounded-lg shadow-md"></section>
+                <section id="hybrid-section" class="bg-white p-6 rounded-lg shadow-md"></section>
+                <section id="reviews-section" class="bg-white p-6 rounded-lg shadow-md"></section>
+                <section id="refined-section" class="bg-white p-6 rounded-lg shadow-md"></section>
+                <section id="debate-section" class="bg-white p-6 rounded-lg shadow-md"></section>
+                <section id="audience-section" class="bg-white p-6 rounded-lg shadow-md"></section>
+                <section id="decision-section" class="bg-white p-6 rounded-lg shadow-md"></section>
+                <section id="salvage-section" class="bg-white p-6 rounded-lg shadow-md"></section>
+                <section id="stress-section" class="bg-white p-6 rounded-lg shadow-md"></section>
+                <section id="final-report-section" class="bg-blue-100 border-l-4 border-blue-500 text-blue-800 p-6 rounded-lg shadow-lg"></section>
             </div>
         </section>
 
