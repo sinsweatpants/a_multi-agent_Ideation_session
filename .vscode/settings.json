@@ -1,0 +1,7 @@
+{
+    "CodeGPT.apiKey": "Google AI Studio",
+    "powershell.integratedConsole.forceClearScrollbackBuffer": true,
+    "geminicodeassist.agentYoloMode": true,
+    "geminicodeassist.agentDebugMode": true,
+    "geminicodeassist.codeGenerationPaneViewEnabled": true
+}
