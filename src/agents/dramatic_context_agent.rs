@@ -433,6 +433,6 @@ Your response will be parsed programmatically.
         );
 
         let api_key = crate::agents::base_agent::BaseAgent::get_api_key(self.api_key_name())?;
-        llm.generate(&final_prompt, self.model_name(), &api_key).await.map_err(Into::into)
+        Ok(llm.generate(&final_prompt, self.model_name(), &api_key).await?)
     }
 }
