@@ -9,6 +9,7 @@ use axum::{
 use std::net::SocketAddr;
 use tower_http::services::ServeDir;
 use tower_http::trace::TraceLayer;
+use tower_http::cors::{CorsLayer, Any};
 use serde::{Deserialize, Serialize};
 use crate::agents::base_agent::{AgentError};
 
@@ -65,13 +66,18 @@ impl From<serde_json::Error> for AppError {
 }
 
 async fn ideation_handler(Json(payload): Json<IdeationRequest>) -> Result<Json<IdeationResponse>, AppError> {
-    tracing::debug!("Received new ideation session request with treatment: {}", payload.dramatic_treatment);
+    tracing::info!("Received new ideation session request with treatment: {}", payload.dramatic_treatment);
     
-    let report = orchestrator::run_ideation_session(&payload.dramatic_treatment).await?;
-    
-    tracing::debug!("Ideation session finished. Sending report.");
-    
-    Ok(Json(IdeationResponse { report }))
+    match orchestrator::run_ideation_session(&payload.dramatic_treatment).await {
+        Ok(report) => {
+            tracing::info!("Ideation session completed successfully");
+            Ok(Json(IdeationResponse { report }))
+        },
+        Err(e) => {
+            tracing::error!("Ideation session failed: {:?}", e);
+            Err(AppError::Agent(e))
+        }
+    }
 }
 
 fn create_static_service() -> Router {
@@ -85,9 +91,14 @@ async fn main() {
     let app = Router::new()
         .route("/api/start-session", post(ideation_handler))
         .merge(create_static_service())
+        .layer(CorsLayer::new()
+            .allow_origin(Any)
+            .allow_methods(Any)
+            .allow_headers(Any))
         .layer(TraceLayer::new_for_http());
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string()).parse::<u16>().unwrap_or(3000);
+    let addr = SocketAddr::from(([127, 0, 0, 1], port));
     tracing::debug!("listening on {}", addr);
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();

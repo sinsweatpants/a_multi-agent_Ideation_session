@@ -96,9 +96,21 @@ pub async fn run_ideation_session(dramatic_treatment: &str) -> Result<String, Ag
     report.push_str(&format!("- **الوكلاء الموصى بهم:** {:?}\n\n", context_report.recommended_agents));
 
     let selected_agent_names = context_report.recommended_agents.clone();
+    tracing::info!("Selected agent names: {:?}", selected_agent_names);
     let mut idea_futures = Vec::new();
-    for agent_name in &selected_agent_names {
+    // استخدام كل الوكلاء المتاحين بدلاً من الاعتماد على AI recommendations
+    let fallback_agent_names = vec!["Story Architect".to_string(), "Character Development".to_string(), "Genre & Tone".to_string()];
+    let agents_to_use = if selected_agent_names.iter().any(|name| get_agent_instance_by_name(name).is_some()) {
+        &selected_agent_names
+    } else {
+        tracing::warn!("No recommended agents found, using fallback agents");
+        &fallback_agent_names
+    };
+
+    for agent_name in agents_to_use {
+        tracing::info!("Trying to get agent: {}", agent_name);
         if let Some(agent) = get_agent_instance_by_name(agent_name) {
+            tracing::info!("Successfully got agent: {}", agent_name);
             let prompt = format!(
                 "Based on the following dramatic treatment and context report, generate a single, compelling logline or core concept from your unique perspective as the {}.\n\n**Dramatic Treatment:**\n{}\n\n**Context Report:**\n{}",
                 agent.name(), dramatic_treatment, context_report_json
@@ -109,6 +121,8 @@ pub async fn run_ideation_session(dramatic_treatment: &str) -> Result<String, Ag
                 let res = agent.execute(&prompt, &llm_clone).await;
                 (agent_name_clone, res)
             });
+        } else {
+            tracing::warn!("Failed to get agent: {}", agent_name);
         }
     }
 
@@ -121,7 +135,7 @@ pub async fn run_ideation_session(dramatic_treatment: &str) -> Result<String, Ag
         initial_ideas.push(Idea {
             name: format!("Idea from {}", agent_name),
             content: content,
-            creator_name: agent_name.clone(),
+            creator_name: agent_name.to_string(),
             creator_instance: get_agent_instance_by_name(&agent_name).unwrap(),
         });
     }
@@ -216,7 +230,8 @@ pub async fn run_ideation_session(dramatic_treatment: &str) -> Result<String, Ag
     report.push_str(&audience_reports);
 
     // الاختيار النهائي (عشوائي في هذا المثال، يمكن تطويره)
-    let winning_idea = refined_ideas.choose(&mut rand::thread_rng()).unwrap();
+    let winning_idea = refined_ideas.choose(&mut rand::thread_rng())
+        .ok_or_else(|| AgentError::ParsingError("No ideas were generated to choose from".to_string()))?;
     report.push_str(&format!("# الفكرة الفائزة: {}\n\n{}\n\n", winning_idea.name, winning_idea.content));
 
     // "إنقاذ" الكنوز المفقودة

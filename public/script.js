@@ -27,13 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusText.textContent = 'بدء جلسة توليد الأفكار... قد تستغرق هذه العملية عدة دقائق.';
                 resultsContent.classList.add('hidden');
 
-                // Send the dramatic treatment to the new endpoint
-                fetch('/api/start-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ dramaticTreatment }),
-                })
-                .then(handleFetchError)
+                // Send the dramatic treatment with retry mechanism
+                startSessionWithRetry({ dramaticTreatment })
                 .then(data => {
                     // Hide loading and show the final report
                     statusIndicator.classList.add('hidden');
@@ -45,6 +40,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // --- HELPER FUNCTIONS ---
+
+        async function startSessionWithRetry(payload) {
+            const url = '/api/start-session';
+            for (let attempt = 0; attempt < 4; attempt++) {
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    });
+                    if (res.ok) return res.json();
+                    if (res.status === 503) {
+                        statusText.textContent = `محاولة ${attempt + 1}/4 - الخدمة غير متاحة مؤقتاً... إعادة المحاولة`;
+                        await new Promise(r => setTimeout(r, 1000 * 2 ** attempt));
+                        continue;
+                    }
+                    throw new Error(`Server responded with status: ${res.status}`);
+                } catch (error) {
+                    if (attempt === 3) throw error;
+                    if (error.message.includes('503') || error.message.includes('fetch')) {
+                        statusText.textContent = `محاولة ${attempt + 1}/4 - مشكلة اتصال... إعادة المحاولة`;
+                        await new Promise(r => setTimeout(r, 1000 * 2 ** attempt));
+                    } else {
+                        throw error;
+                    }
+                }
+            }
+            throw new Error('Service temporarily unavailable after retries');
+        }
 
         function handleFetchError(response) {
             if (!response.ok) {
