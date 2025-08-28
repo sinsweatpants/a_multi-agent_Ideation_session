@@ -35,6 +35,7 @@ struct ErrorResponse {
 enum AppError {
     Agent(AgentError),
     Json(serde_json::Error),
+    ConfigurationError(String),
 }
 
 impl IntoResponse for AppError {
@@ -42,6 +43,10 @@ impl IntoResponse for AppError {
         let (status, error_message) = match self {
             AppError::Agent(err) => (StatusCode::INTERNAL_SERVER_ERROR, format!("An error occurred in the agent pipeline: {}", err)),
             AppError::Json(err) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to process JSON data: {}", err)),
+            AppError::ConfigurationError(err) => (
+                StatusCode::SERVICE_UNAVAILABLE,
+                format!("Configuration Error: {}", err)
+            ),
         };
 
         let body = Json(ErrorResponse {
@@ -54,7 +59,11 @@ impl IntoResponse for AppError {
 
 impl From<AgentError> for AppError {
     fn from(err: AgentError) -> Self {
-        AppError::Agent(err)
+        match err {
+            AgentError::ApiKeyNotFound(k) => AppError::ConfigurationError(format!("API Key not found: {}", k)),
+            AgentError::ConfigurationError(msg) => AppError::ConfigurationError(msg),
+            other => AppError::Agent(other),
+        }
     }
 }
 
@@ -80,6 +89,25 @@ fn create_static_service() -> Router {
 
 #[tokio::main]
 async fn main() {
+    // --- BUG-001: begin insert ---
+    // تحميل .env إن توفّر رابط المكتبة
+    let _ = (|| {
+        #[cfg(any(feature = "use_dotenv", feature = "dotenv"))]
+        { dotenv::dotenv().ok(); }
+        #[cfg(any(feature = "use_dotenvy", feature = "dotenvy"))]
+        { dotenvy::dotenv().ok(); }
+        // في حال عدم توافر أيٍّ من المكتبتين في البناء الحالي، سيتجاوز التحميل.
+        Ok::<(), ()>(())
+    })();
+
+    // التحقق من وجود مفاتيح الوكلاء
+    for i in 1..=13 {
+        let key = format!("AGENT_{}_API_KEY", i);
+        std::env::var(&key).expect(&format!("{} must be set", key));
+    }
+    // مفتاح المنسّق
+    std::env::var("ORCHESTRATOR_API_KEY").expect("ORCHESTRATOR_API_KEY must be set");
+    // --- BUG-001: end insert ---
     tracing_subscriber::fmt::init();
 
     let app = Router::new()
