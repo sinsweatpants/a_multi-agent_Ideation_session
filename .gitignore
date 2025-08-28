@@ -1,3 +1,8 @@
 /target
 # Ignore environment secrets
 .env
+
+# Ignore IDE and virtual environment files
+.vscode/
+.venv/
+.idx/
