@@ -12,35 +12,37 @@ document.addEventListener('DOMContentLoaded', () => {
         const resultsContent = document.getElementById('results-content');
 
         // --- EVENT LISTENERS ---
-        generateReportBtn.addEventListener('click', () => {
-            const dramaticTreatment = treatmentInput.value.trim();
-            if (!dramaticTreatment) {
-                alert('يرجى إدخال معالجة درامية.');
-                return;
-            }
+        if (generateReportBtn) {
+            generateReportBtn.addEventListener('click', () => {
+                const dramaticTreatment = treatmentInput.value.trim();
+                if (!dramaticTreatment) {
+                    alert('يرجى إدخال معالجة درامية.');
+                    return;
+                }
 
-            // Hide form and show loading indicator
-            treatmentSection.classList.add('hidden');
-            resultsSection.classList.remove('hidden');
-            statusIndicator.classList.remove('hidden');
-            statusText.textContent = 'بدء جلسة توليد الأفكار... قد تستغرق هذه العملية عدة دقائق.';
-            resultsContent.classList.add('hidden');
+                // Hide form and show loading indicator
+                treatmentSection.classList.add('hidden');
+                resultsSection.classList.remove('hidden');
+                statusIndicator.classList.remove('hidden');
+                statusText.textContent = 'بدء جلسة توليد الأفكار... قد تستغرق هذه العملية عدة دقائق.';
+                resultsContent.classList.add('hidden');
 
-            // Send the dramatic treatment to the new endpoint
-            fetch('/api/start-session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ dramaticTreatment }),
-            })
-            .then(handleFetchError)
-            .then(data => {
-                // Hide loading and show the final report
-                statusIndicator.classList.add('hidden');
-                resultsContent.classList.remove('hidden');
-                renderFinalReport(data.report);
-            })
-            .catch(handleError);
-        });
+                // Send the dramatic treatment to the new endpoint
+                fetch('/api/start-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dramaticTreatment }),
+                })
+                .then(handleFetchError)
+                .then(data => {
+                    // Hide loading and show the final report
+                    statusIndicator.classList.add('hidden');
+                    resultsContent.classList.remove('hidden');
+                    renderFinalReport(data.report);
+                })
+                .catch(handleError);
+            });
+        }
 
         // --- HELPER FUNCTIONS ---
 
