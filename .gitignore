@@ -1,0 +1,3 @@
+/target
+# Ignore environment secrets
+.env
