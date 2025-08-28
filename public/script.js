@@ -8,15 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("script.js loaded");
     try {
         // --- STATE MANAGEMENT ---
-        let apiKey = null;
         let sessionId = null;
 
         // --- DOM ELEMENT SELECTORS ---
-        const apiKeySection = document.getElementById('api-key-section');
-        const apiKeyInput = document.getElementById('api-key-input');
-        const startSessionBtn = document.getElementById('start-session-btn');
-        const apiKeyError = document.getElementById('api-key-error');
-
         const creativeBriefSection = document.getElementById('creative-brief-section');
         const creativeBriefInput = document.getElementById('creative-brief-input');
         const generateIdeasBtn = document.getElementById('generate-ideas-btn');
@@ -27,18 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const resultsContent = document.getElementById('results-content');
 
         // --- EVENT LISTENERS ---
-        startSessionBtn.addEventListener('click', () => {
-            const inputKey = apiKeyInput.value.trim();
-            if (inputKey) {
-                apiKey = inputKey;
-                apiKeyError.classList.add('hidden');
-                apiKeySection.classList.add('hidden');
-                creativeBriefSection.classList.remove('hidden');
-            } else {
-                apiKeyError.classList.remove('hidden');
-            }
-        });
-
         generateIdeasBtn.addEventListener('click', () => {
             const creativeBrief = creativeBriefInput.value.trim();
             if (!creativeBrief) {
@@ -55,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fetch('/api/start-session', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ apiKey, creativeBrief }),
+                body: JSON.stringify({ creativeBrief }),
             })
             .then(handleFetchError)
             .then(data => {
@@ -213,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
             debate.rounds.map(round => `
                 <details class="p-4 border rounded-lg mt-4" open>
                     <summary class="font-bold text-xl cursor-pointer">${round.topic}</summary>
-                    <p class="text-sm text-gray-500 mt-2">المتناظرون: ${round.agents.join(', ')}</p>
+                    <p class="text-sm text-gray-500 mt-2">المتناظرون: ${Array.isArray(round.agents) ? round.agents.join(', ') : ''}</p>
                     <div class="mt-2 p-3 bg-gray-50 rounded prose max-w-none">${round.arguments_ar.replace(/\n/g, '<br>')}</div>
                     <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded prose max-w-none">
                         <h5 class="font-bold">محامي الشيطان (${round.devilsAdvocate}):</h5>

@@ -8,6 +8,7 @@ use axum::{
 };
 use std::net::SocketAddr;
 use tower_http::services::ServeDir;
+use tower_http::trace::TraceLayer;
 use serde::{Deserialize, Serialize};
 use crate::agents::base_agent::AgentError;
 
@@ -172,7 +173,7 @@ async fn select_ideas_handler(Json(payload): Json<SelectIdeasRequest>) -> Result
     tracing::debug!("Selecting ideas for session {}: {:?}", payload.session_id, payload.chosen_loglines);
     let response = SelectIdeasResponse {
         final_report: FinalReport {
-            hybrid_idea: DummyIdea { source_agent: "وكيل الدمج".to_string(), text_ar: "هذه هي الفكرة الهجينة التي تم إنشاؤها.".to_string() },
+            hybrid_idea: DummyIdea { source_agent: "المنسق (فكرة هجينة)".to_string(), text_ar: "هذه هي الفكرة الهجينة التي تم إنشاؤها.".to_string() },
             coordinator_decision: DummyDecision { winner: "".to_string(), justification_ar: "".to_string() },
             salvage_analysis: vec![],
             stress_test: DummyStressTest { mitigations_ar: vec![] },
@@ -188,7 +189,7 @@ async fn debate_handler(Json(payload): Json<StageRequest>) -> Result<Json<StageR
     // This would run the debate logic
     let response = StageResponse {
         final_report: FinalReport {
-            hybrid_idea: DummyIdea { source_agent: "وكيل الدمج".to_string(), text_ar: "هذه هي الفكرة الهجينة التي تم إنشاؤها.".to_string() },
+            hybrid_idea: DummyIdea { source_agent: "المنسق (فكرة هجينة)".to_string(), text_ar: "هذه هي الفكرة الهجينة التي تم إنشاؤها.".to_string() },
             coordinator_decision: DummyDecision { winner: "".to_string(), justification_ar: "".to_string() },
             salvage_analysis: vec![],
             stress_test: DummyStressTest { mitigations_ar: vec![] },
@@ -204,7 +205,7 @@ async fn audience_handler(Json(payload): Json<StageRequest>) -> Result<Json<Stag
     // This would run the audience persona logic
      let response = StageResponse {
         final_report: FinalReport {
-            hybrid_idea: DummyIdea { source_agent: "وكيل الدمج".to_string(), text_ar: "هذه هي الفكرة الهجينة التي تم إنشاؤها.".to_string() },
+            hybrid_idea: DummyIdea { source_agent: "المنسق (فكرة هجينة)".to_string(), text_ar: "هذه هي الفكرة الهجينة التي تم إنشاؤها.".to_string() },
             coordinator_decision: DummyDecision { winner: "".to_string(), justification_ar: "".to_string() },
             salvage_analysis: vec![],
             stress_test: DummyStressTest { mitigations_ar: vec![] },
@@ -220,7 +221,7 @@ async fn decide_handler(Json(payload): Json<StageRequest>) -> Result<Json<StageR
     // This would run the final decision logic
     let response = StageResponse {
         final_report: FinalReport {
-            hybrid_idea: DummyIdea { source_agent: "وكيل الدمج".to_string(), text_ar: "هذه هي الفكرة الهجينة التي تم إنشاؤها.".to_string() },
+            hybrid_idea: DummyIdea { source_agent: "المنسق (فكرة هجينة)".to_string(), text_ar: "هذه هي الفكرة الهجينة التي تم إنشاؤها.".to_string() },
             coordinator_decision: DummyDecision { winner: "الفكرة 3 (الهجينة)".to_string(), justification_ar: "تم اختيار الفكرة الهجينة لأنها تجمع أفضل عناصر الفكرتين الأخريين.".to_string() },
             salvage_analysis: vec![DummySalvage { recommendations_ar: vec!["استخدام شخصية من الفكرة 1".to_string()] }],
             stress_test: DummyStressTest { mitigations_ar: vec!["خطة التخفيف لاختبار الإجهاد.".to_string()] },
@@ -231,6 +232,9 @@ async fn decide_handler(Json(payload): Json<StageRequest>) -> Result<Json<StageR
     Ok(Json(response))
 }
 
+fn create_static_service() -> Router {
+    Router::new().nest_service("/", get_service(ServeDir::new("public")))
+}
 
 #[tokio::main]
 async fn main() {
@@ -244,7 +248,8 @@ async fn main() {
         .route("/api/debate", post(debate_handler))
         .route("/api/audience", post(audience_handler))
         .route("/api/decide", post(decide_handler))
-        .fallback_service(get_service(ServeDir::new("public")));
+        .merge(create_static_service())
+        .layer(TraceLayer::new_for_http());
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`

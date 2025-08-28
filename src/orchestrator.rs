@@ -14,6 +14,7 @@ use crate::agents::strategic_analyst::StrategicAnalystAgent;
 use crate::agents::audience_persona::AudiencePersonaAgent;
 use crate::language_model::LanguageModel;
 use futures::future::join_all;
+use crate::Logline;
 
 // To represent different agent types in a structured way
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
@@ -322,4 +323,41 @@ pub async fn run_ideation_session(prompt: &str) -> Result<String, AgentError> {
 
 
    Ok(report)
+}
+
+pub async fn run_creative_sparks(prompt: &str) -> Result<Vec<Logline>, AgentError> {
+   dotenv::dotenv().ok();
+   let llm = LanguageModel::new();
+
+   let spark_agents: Vec<Box<dyn Agent + Send + Sync>> = vec![
+       Box::new(WorldBuildingAgent::new()),
+       Box::new(GenreToneAgent::new()),
+       Box::new(ConflictTensionAgent::new()),
+       Box::new(CharacterDevelopmentAgent::new()),
+       Box::new(ThemeAgent::new()),
+   ];
+
+   let spark_prompts: Vec<String> = spark_agents.iter().map(|_agent| {
+       format!("Based on the user's brief '{}', generate a single, compelling logline or core concept from your unique perspective.", prompt)
+   }).collect();
+
+   let mut spark_futures = Vec::new();
+   for (i, agent) in spark_agents.iter().enumerate() {
+       spark_futures.push(agent.execute(&spark_prompts[i], &llm));
+   }
+   let sparks = join_all(spark_futures).await;
+
+   let mut loglines = Vec::new();
+   let error_spark = "Error generating spark".to_string();
+   for (i, spark) in sparks.iter().enumerate() {
+       let agent_name = spark_agents[i].name();
+       let spark_text = spark.as_ref().unwrap_or(&error_spark);
+       loglines.push(Logline {
+           id: (i + 1).to_string(),
+           source_agent: agent_name.to_string(),
+           text_ar: spark_text.clone(),
+       });
+   }
+
+   Ok(loglines)
 }
