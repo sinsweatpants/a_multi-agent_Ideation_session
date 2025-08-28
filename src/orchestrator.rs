@@ -17,6 +17,7 @@ use futures::future::join_all;
 use serde_json;
 use rand::seq::SliceRandom;
 use std::sync::Arc;
+use std::env;
 
 // Helper function to extract a JSON object from a larger string
 fn extract_json_from_response(response: &str) -> Option<&str> {
@@ -68,6 +69,10 @@ fn get_agent_instance_by_name(name: &str) -> Option<Box<dyn Agent + Send + Sync>
 
 pub async fn run_ideation_session(dramatic_treatment: &str) -> Result<String, AgentError> {
     dotenv::dotenv().ok();
+
+    let orchestrator_api_key = env::var("ORCHESTRATOR_API_KEY")
+        .map_err(|_| AgentError::ConfigurationError("ORCHESTRATOR_API_KEY environment variable not set".to_string()))?;
+
     let llm = Arc::new(LanguageModel::new());
     let mut report = String::new();
 
@@ -180,7 +185,7 @@ pub async fn run_ideation_session(dramatic_treatment: &str) -> Result<String, Ag
                 "DEBATE ROUND: {}\n\nIdea: {}\n\nAs the {} and {}, engage in a focused debate. {} starts. Present your arguments clearly.",
                 round.topic, idea.content, round.agent_a_name, round.agent_b_name, round.agent_a_name
             );
-            let debate_result = llm.generate(&debate_prompt, "models/gemini-1.5-pro-latest", &dotenv::var("ORCHESTRATOR_API_KEY").unwrap()).await?;
+            let debate_result = llm.generate(&debate_prompt, "models/gemini-1.5-pro-latest", &orchestrator_api_key).await?;
             idea_debate_report.push_str(&format!("### جولة: {}\n{}\n", round.topic, debate_result));
 
             // Devil's Advocate
@@ -188,7 +193,7 @@ pub async fn run_ideation_session(dramatic_treatment: &str) -> Result<String, Ag
                 "As a Devil's Advocate, your task is to attack the idea that seems to be winning the following debate. Identify its core weaknesses and challenge its logic mercilessly.\n\nDebate on {}:\n{}\n\nIdea:\n{}",
                 round.topic, debate_result, idea.content
             );
-            let devils_advocate_critique = llm.generate(&devils_advocate_prompt, "models/gemini-1.5-pro-latest", &dotenv::var("ORCHESTRATOR_API_KEY").unwrap()).await?;
+            let devils_advocate_critique = llm.generate(&devils_advocate_prompt, "models/gemini-1.5-pro-latest", &orchestrator_api_key).await?;
             idea_debate_report.push_str(&format!("#### نقد محامي الشيطان:\n{}\n", devils_advocate_critique));
         }
         debate_reports.push(idea_debate_report);
@@ -228,7 +233,7 @@ pub async fn run_ideation_session(dramatic_treatment: &str) -> Result<String, Ag
     let _conflict_agent = ConflictTensionAgent::new();
     let _realism_agent = RealismCriticAgent::new();
     let stress_test_prompt = format!("As the Conflict & Tension Agent and the Realism Critic, your job is to 'stress test' the following winning story. Ask the hardest questions about its logic, character motivations, and plot coherence. Try to 'break' the story.\n\nWinning Idea: {}", winning_idea.content);
-    let stress_test_results = llm.generate(&stress_test_prompt, "models/gemini-1.5-pro-latest", &dotenv::var("ORCHESTRATOR_API_KEY").unwrap()).await?;
+    let stress_test_results = llm.generate(&stress_test_prompt, "models/gemini-1.5-pro-latest", &orchestrator_api_key).await?;
     report.push_str(&format!("\n## نتائج اختبار الإجهاد النهائي:\n{}\n", stress_test_results));
 
     Ok(report)
