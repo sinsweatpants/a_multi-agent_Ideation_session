@@ -9,6 +9,8 @@ pub enum AgentError {
     ModelError(#[from] ModelError),
     #[error("API key not found for agent: {0}")]
     ApiKeyNotFound(String),
+    #[error("Failed to parse data: {0}")]
+    ParsingError(String),
 }
 
 #[async_trait]

@@ -12,6 +12,8 @@
     pkgs.rustup
     pkgs.sudo
     pkgs.killall
+    pkgs.python3
+    pkgs.busybox 
   ];
   # Sets environment variables in the workspace
   env = {

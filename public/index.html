@@ -15,20 +15,9 @@
         </header>
 
         <main id="app" class="bg-white p-6 rounded-lg shadow-lg">
-            <!-- API Key Section -->
-            <section id="api-key-section">
-                <h2 class="text-2xl font-semibold mb-4">الخطوة 1: أدخل مفتاح Gemini API الخاص بك</h2>
-                <p class="text-gray-600 mb-4">مفتاح API الخاص بك مطلوب لتشغيل النماذج اللغوية للوكلاء. لن يتم تخزينه.</p>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="password" id="api-key-input" placeholder="أدخل مفتاح Gemini API (وكيل السياق)" class="flex-grow p-3 border rounded-md focus:ring-2 focus:ring-blue-500">
-                    <button id="start-session-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-md hover:bg-blue-700">تأكيد وبدء الجلسة</button>
-                </div>
-                <p id="api-key-error" class="text-red-500 mt-2 hidden">مفتاح API مطلوب.</p>
-            </section>
-
-            <!-- Dramatic Treatment Section (New) -->
-            <section id="treatment-section" class="hidden">
-                <h2 class="text-2xl font-semibold mb-4">الخطوة 2: أدخل المعالجة الدرامية</h2>
+            <!-- Dramatic Treatment Section -->
+            <section id="treatment-section">
+                <h2 class="text-2xl font-semibold mb-4">أدخل المعالجة الدرامية</h2>
                 <p class="text-gray-600 mb-4">قدم ملخصًا مفصلاً أو معالجة درامية لقصتك. كلما كانت التفاصيل أكثر، كان تحليل السياق أعمق.</p>
                 <textarea id="treatment-input" rows="8" placeholder="على سبيل المثال: 'تدور أحداث القصة في عام 2099، حيث يعيش محقق خاص منعزل في مدينة غارقة في الأمطار النيونية. يتم تكليفه بالعثور على ابنة الرئيس التنفيذي لشركة تكنولوجيا عملاقة، ليكتشف مؤامرة تهدد بتعتيم الخط الفاصل بين الوعي البشري والذكاء الاصطناعي...'" class="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"></textarea>
                 <button id="generate-report-btn" class="mt-4 w-full bg-green-600 text-white font-bold py-3 px-8 rounded-md hover:bg-green-700">تحليل السياق</button>

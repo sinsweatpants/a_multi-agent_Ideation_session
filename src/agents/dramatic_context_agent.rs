@@ -1,62 +1,44 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use crate::agents::base_agent::{Agent, AgentError, AgentOutput};
+use crate::agents::base_agent::{Agent, AgentError};
 use crate::language_model::LanguageModel;
 
-#[derive(Serialize)]
-struct DramaticContextPrompt {
-    // Defines the structure of the data sent to the language model.
-    treatment: String,
+// Defines the structure of the expected report from the language model.
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct DramaticContextReport {
+    pub tonal_microscopy: String,
+    pub emotional_subtext: String,
+    pub key_dramatic_questions: Vec<String>,
+    pub recommended_agents: Vec<String>, 
 }
 
-#[derive(Deserialize, Debug)]
-struct DramaticContextReport {
-    // Defines the structure of the expected report from the language model.
-    tonal_microscopy: String,
-    emotional_subtext: String,
-    pacing_and_rhythm: String,
-    genre_and_audience_expectations: String,
-    key_dramatic_questions: Vec<String>,
-    recommended_agents: Vec<String>, // List of agent names best suited for the task
-}
-
-pub struct DramaticContextAgent {
-    pub model: LanguageModel,
-}
+pub struct DramaticContextAgent;
 
 impl DramaticContextAgent {
-    fn system_prompt(&self) -> String {
-        // This prompt is constructed from the core principles in the development guide.
-        String::from(
-            "You are the 'Dramatic Context Analysis Agent.' Your primary mission is to serve as the master interpreter of dramatic nuance.
-            Your Core Belief: 'Context is everything. The difference between tragedy and black comedy often lies not in the events themselves, but in the lens through which we view them.'
+    pub fn new() -> Self {
+        Self
+    }
+}
 
-            You will receive a dramatic treatment. Your tasks are:
-            1.  **Micro-Level Dramatic Analysis**:
-                -   **Tonal Microscopy**: Identify subtle word choices and phrasing that reveal true dramatic intent.
-                -   **Emotional Subtext Detection**: Decode underlying emotional currents and unspoken character desires.
-            2.  **Macro-Level Contextual Analysis**:
-                -   **Pacing and Rhythm Analysis**: Determine the intended pacing (e.g., slow-burn tension, frantic action).
-                -   **Genre & Audience Expectation Mapping**: Identify the primary genre and the core expectations an audience would have for it.
-            3.  **Strategic Analysis**:
-                -   **Identify Key Dramatic Questions**: Articulate the central questions the story raises (e.g., 'Will the hero sacrifice his family for his ambition?').
-                -   **Agent Recommendation**: Based on your complete analysis, you MUST recommend exactly SIX agent archetypes from the provided list that are best suited to develop this treatment further.
+#[async_trait]
+impl Agent for DramaticContextAgent {
+    fn name(&self) -> &'static str {
+        "Dramatic Context"
+    }
 
-            Available Agent Archetypes for Recommendation:
-            - Story Architect
-            - Character Development
-            - World Building
-            - Conflict & Tension
-            - Dialogue & Voice
-            - Pacing & Rhythm
-            - Theme & Symbolism
-            - Genre Tone & Style
-            - Realism Critic
-            - Audience Persona
-            - Strategic Analyst
-            - Character Expansion
+    fn model_name(&self) -> &str {
+        "models/gemini-2.5-pro"
+    }
 
-            You MUST format your response a# Dramatic Context Analysis Agent - Complete Development Guide
+    fn api_key_name(&self) -> &str {
+        "AGENT_13_API_KEY"
+    }
+
+    async fn execute(&self, dramatic_treatment: &str, llm: &LanguageModel) -> Result<String, AgentError> {
+        // We need to add a specific instruction to the end of the detailed prompt 
+        // to ensure the model returns JSON.
+        let final_prompt = format!(
+            r#"# Dramatic Context Analysis Agent - Complete Development Guide
 
 ## Core Identity & Philosophy
 
@@ -343,7 +325,7 @@ Dig through layers to understand full dramatic intent:
 DRAMATIC CONTEXT ANALYSIS: [Treatment Title]
 
 SURFACE INDICATORS
-- Stated Genre: [What treatment explicitly claims]
+- Stated genre: [What treatment explicitly claims]
 - Plot Structure: [Beginning, middle, end pattern]
 - Character Types: [Protagonist, antagonist, supporting cast roles]
 - Setting Context: [Time, place, social environment]
@@ -437,45 +419,20 @@ GENRE PRECISION:
 - Successful navigation of complex social and political themes
 - Positive response from relevant cultural communities
 
-The Dramatic Context Analysis Agent serves as the story's philosophical archaeologist, excavating the deepest intentions and subtlest nuances to ensure every creative decision honors the true dramatic spirit embedded within the initial treatment.."
-        )
-    }
-}
+The Dramatic Context Analysis Agent serves as the story's philosophical archaeologist, excavating the deepest intentions and subtlest nuances to ensure every creative decision honors the true dramatic spirit embedded within the initial treatment.
 
-#[async_trait]
-impl Agent for DramaticContextAgent {
-    fn name(&self) -> &'static str {
-        "Dramatic Context Analysis Agent"
-    }
+Your output MUST be a single, valid JSON object and nothing else. Do not include any explanatory text, markdown formatting, or any characters outside of the JSON object.
 
-    fn model_config(&self) -> (&'static str, &'static str) {
-        // As per user specification
-        ("models/gemini-2.5-flash-image-preview", "AGENT_13_API_KEY")
-    }
+Your response will be parsed programmatically.
 
-    async fn execute(&self, input: &str) -> Result<AgentOutput, AgentError> {
-        let prompt = DramaticContextPrompt {
-            treatment: input.to_string(),
-        };
+**Analyze the following treatment and provide the report in the required JSON format.**
 
-        let system_prompt = self.system_prompt();
-        let rendered_prompt = self.model.render_prompt(&system_prompt, &prompt)?;
+**Dramatic Treatment:**
+{}"#,
+            dramatic_treatment
+        );
 
-        let raw_output = self.model.query_model(rendered_prompt).await?;
-
-        // Attempt to parse the raw output as the expected report structure.
-        let report: DramaticContextReport = serde_json::from_str(&raw_output)
-            .map_err(|e| AgentError::JsonParsing(e.to_string()))?;
-
-        // For this agent, the detailed report itself is the main output.
-        // We can serialize it back to a pretty JSON string for display or further processing.
-        let pretty_json_output = serde_json::to_string_pretty(&report)
-            .map_err(|e| AgentError::JsonParsing(e.to_string()))?;
-
-        Ok(AgentOutput {
-            agent_name: self.name().to_string(),
-            summary: "Successfully generated Dramatic Context Report.".to_string(),
-            details: pretty_json_output,
-        })
+        let api_key = crate::agents::base_agent::BaseAgent::get_api_key(self.api_key_name())?;
+        llm.generate(&final_prompt, self.model_name(), &api_key).await.map_err(Into::into)
     }
 }
