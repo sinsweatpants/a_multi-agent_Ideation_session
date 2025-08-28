@@ -8,6 +8,7 @@ use axum::{
 use std::net::SocketAddr;
 use tower_http::services::ServeDir;
 use serde::{Deserialize, Serialize};
+use crate::agents::base_agent::AgentError;
 
 mod orchestrator;
 mod agents;
@@ -28,14 +29,16 @@ struct ErrorResponse {
     error: String,
 }
 
+// This will be our single top-level error type.
 enum AppError {
-    ModelError(language_model::ModelError),
+    Agent(AgentError),
 }
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let (status, error_message) = match self {
-            AppError::ModelError(err) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Language Model Error: {}", err)),
+            // We now properly handle the AgentError variant
+            AppError::Agent(err) => (StatusCode::INTERNAL_SERVER_ERROR, format!("An error occurred in the agent pipeline: {}", err)),
         };
 
         let body = Json(ErrorResponse {
@@ -46,9 +49,11 @@ impl IntoResponse for AppError {
     }
 }
 
-impl From<language_model::ModelError> for AppError {
-    fn from(err: language_model::ModelError) -> Self {
-        AppError::ModelError(err)
+// This is the crucial implementation that fixes the error.
+// It tells Axum how to convert an AgentError into our AppError.
+impl From<AgentError> for AppError {
+    fn from(err: AgentError) -> Self {
+        AppError::Agent(err)
     }
 }
 
@@ -75,6 +80,7 @@ async fn main() {
     // `axum::Server` is a re-export of `hyper::Server`
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     tracing::debug!("listening on {}", addr);
+    // The unwrap here is okay for an example, but in production, this should be handled.
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }

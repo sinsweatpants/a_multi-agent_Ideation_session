@@ -444,7 +444,7 @@ impl Agent for CharacterDevelopmentAgent {
     }
 
     fn model_name(&self) -> &str {
-        "models/gemini-1.5-pro"
+    "models/gemini-2.5-pro"
     }
     
     fn api_key_name(&self) -> &str {

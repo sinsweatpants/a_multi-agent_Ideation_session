@@ -508,7 +508,7 @@ impl Agent for CharacterExpansionAgent {
     }
 
     fn model_name(&self) -> &str {
-        "models/gemini-1.5-flash"
+    "models/gemini-2.5-pro"
     }
     
     fn api_key_name(&self) -> &str {

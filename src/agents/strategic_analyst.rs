@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use super::base_agent::{Agent, BaseAgent};
+use super::base_agent::{Agent, BaseAgent, AgentError};
 use crate::language_model::{LanguageModel, ModelError};
 
 pub struct StrategicAnalystAgent {
@@ -285,10 +285,15 @@ impl Agent for StrategicAnalystAgent {
     }
 
     fn model_name(&self) -> &str {
-        "models/gemini-2.5-flash-preview-05-20"
+    "models/gemini-2.5-pro"
+    }
+    
+    fn api_key_name(&self) -> &str {
+        "AGENT_10_API_KEY"
     }
 
-    async fn execute(&self, prompt: &str, llm: &LanguageModel) -> Result<String, ModelError> {
+    async fn execute(&self, prompt: &str, llm: &LanguageModel) -> Result<String, AgentError> {
+        let api_key = BaseAgent::get_api_key(self.api_key_name())?;
         let system_prompt = Self::get_system_prompt();
         let full_prompt = format!("{}
 
@@ -297,6 +302,6 @@ impl Agent for StrategicAnalystAgent {
 **User Request:**
 {}", system_prompt, prompt);
 
-        llm.generate(&full_prompt, self.model_name()).await
+        Ok(llm.generate(&full_prompt, self.model_name(), &api_key).await?)
     }
 }
