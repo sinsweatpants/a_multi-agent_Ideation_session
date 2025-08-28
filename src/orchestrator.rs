@@ -211,7 +211,7 @@ pub async fn run_ideation_session(dramatic_treatment: &str) -> Result<String, Ag
     for idea in &refined_ideas {
         let audience_prompt = format!("As an 'Audience Persona' agent, review the following refined story idea from the perspective of a specific audience segment (e.g., 'teen fantasy reader' or 'hardboiled detective fan'). What is their likely reaction?\n\nIdea: {}", idea.content);
         let audience_feedback = audience_persona_agent.execute(&audience_prompt, &llm).await?;
-        audience_reports.push_str(&format!("## رأي شخصية الجمهور عن '{}':\n{}\n\n", idea.name, audience_feedback));
+        audience_reports.push_str(&format!("## .رأي شخصية الجمهور عن '{}':\n{}\n\n", idea.name, audience_feedback));
     }
     report.push_str(&audience_reports);
 
@@ -225,7 +225,7 @@ pub async fn run_ideation_session(dramatic_treatment: &str) -> Result<String, Ag
     for lost_idea in refined_ideas.iter().filter(|i| i.name != winning_idea.name) {
         let save_prompt = format!("Review the following losing idea and extract any unique characters, subplots, or concepts that could be salvaged and integrated into a different story.\n\nLosing Idea: {}", lost_idea.content);
         let saved_elements = character_expansion_agent.execute(&save_prompt, &llm).await?;
-        saved_treasures_report.push_str(&format!("- من '{}': {}\n", lost_idea.name, saved_elements));
+        saved_treasures_report.push_str(&format!("- .من '{}': {}\n", lost_idea.name, saved_elements));
     }
     report.push_str(&saved_treasures_report);
 
