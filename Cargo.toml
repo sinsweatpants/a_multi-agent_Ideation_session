@@ -1,9 +1,19 @@
-workspace = { members = ["rust_multi_agent_ideation"] }
 [package]
-name = "app"
+name = "rust_multi_agent_ideation"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.5", features = ["fs"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+async-trait = "0.1"
+reqwest = { version = "0.12", features = ["json"] }
+dotenv = "0.15"
+thiserror = "1.0"
