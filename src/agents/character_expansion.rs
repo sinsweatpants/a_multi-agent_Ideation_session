@@ -1,16 +1,13 @@
+#![allow(dead_code)]
 use async_trait::async_trait;
 use super::base_agent::{Agent, BaseAgent, AgentError};
-use crate::language_model::{LanguageModel, ModelError};
+use crate::language_model::LanguageModel;
 
-pub struct CharacterExpansionAgent {
-    base: BaseAgent,
-}
+pub struct CharacterExpansionAgent;
 
 impl CharacterExpansionAgent {
     pub fn new() -> Self {
-        Self {
-            base: BaseAgent::new("Character Expansion"),
-        }
+        Self
     }
 
     fn get_system_prompt() -> &'static str {
@@ -503,8 +500,8 @@ The Character Expansion Agent serves as the population architect of storytelling
 
 #[async_trait]
 impl Agent for CharacterExpansionAgent {
-    fn name(&self) -> &str {
-        &self.base.name
+    fn name(&self) -> &'static str {
+        "Character Expansion"
     }
 
     fn model_name(&self) -> &str {

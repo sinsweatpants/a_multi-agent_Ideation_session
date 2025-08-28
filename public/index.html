@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>the copy>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900">تطوير القصة متعدد الوكلاء</h1>
+            <p class="text-lg text-gray-600 mt-2">أداة تعاونية لتوليد الأفكار الإبداعية</p>
+        </header>
+
+        <main id="app" class="bg-white p-6 rounded-lg shadow-lg">
+            <!-- API Key Section -->
+            <section id="api-key-section">
+                <h2 class="text-2xl font-semibold mb-4">الخطوة 1: أدخل مفتاح API الخاص بك</h2>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="password" id="api-key-input" placeholder="أدخل مفتاح Gemini API الخاص بك هنا" class="flex-grow p-3 border rounded-md focus:ring-2 focus:ring-blue-500">
+                    <button id="start-session-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-md hover:bg-blue-700">بدء الجلسة</button>
+                </div>
+                <p id="api-key-error" class="text-red-500 mt-2 hidden">مفتاح API مطلوب.</p>
+            </section>
+
+            <!-- Creative Brief Section -->
+            <section id="creative-brief-section" class="hidden">
+                <h2 class="text-2xl font-semibold mb-4">الخطوة 2: قدم موجزًا إبداعيًا</h2>
+                <textarea id="creative-brief-input" rows="4" placeholder="على سبيل المثال: 'اكتب قصة خيال علمي عن مستكشف فضاء يكتشف كوكبًا تسكنه كائنات ذكية مصنوعة من الموسيقى.'" class="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"></textarea>
+                <button id="generate-ideas-btn" class="mt-4 w-full bg-green-600 text-white font-bold py-3 px-8 rounded-md hover:bg-green-700">توليد الأفكار</button>
+            </section>
+
+            <!-- Results Section -->
+            <section id="results-section" class="hidden">
+                <div id="status-indicator" class="text-center p-4 hidden">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+                    <p id="status-text" class="mt-4 text-lg font-semibold">جارٍ العمل...</p>
+                </div>
+                <div id="results-content" class="hidden space-y-8">
+                    <section id="divergence-section"></section>
+                    <section id="selection-section" class="mt-6"></section>
+                    <section id="hybrid-section"></section>
+                    <section id="reviews-section"></section>
+                    <section id="debate-section"></section>
+                    <section id="audience-section"></section>
+                    <section id="decision-section"></section>
+                    <section id="salvage-section"></section>
+                    <section id="stress-section"></section>
+                    <section id="final-report-section"></section>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

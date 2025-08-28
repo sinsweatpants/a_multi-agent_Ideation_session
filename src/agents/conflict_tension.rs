@@ -1,16 +1,13 @@
+#![allow(dead_code)]
 use async_trait::async_trait;
 use super::base_agent::{Agent, BaseAgent, AgentError};
-use crate::language_model::{LanguageModel, ModelError};
+use crate::language_model::LanguageModel;
 
-pub struct ConflictTensionAgent {
-    base: BaseAgent,
-}
+pub struct ConflictTensionAgent;
 
 impl ConflictTensionAgent {
     pub fn new() -> Self {
-        Self {
-            base: BaseAgent::new("Conflict & Tension"),
-        }
+        Self
     }
 
     fn get_system_prompt() -> &'static str {
@@ -453,8 +450,8 @@ The Conflict & Tension Agent serves as the story's engine, creating the necessar
 
 #[async_trait]
 impl Agent for ConflictTensionAgent {
-    fn name(&self) -> &str {
-        &self.base.name
+    fn name(&self) -> &'static str {
+        "Conflict & Tension"
     }
 
     fn model_name(&self) -> &str {

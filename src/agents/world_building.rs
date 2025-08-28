@@ -1,16 +1,13 @@
+#![allow(dead_code)]
 use async_trait::async_trait;
 use super::base_agent::{Agent, BaseAgent, AgentError};
-use crate::language_model::{LanguageModel, ModelError};
+use crate::language_model::LanguageModel;
 
-pub struct WorldBuildingAgent {
-    base: BaseAgent,
-}
+pub struct WorldBuildingAgent;
 
 impl WorldBuildingAgent {
     pub fn new() -> Self {
-        Self {
-            base: BaseAgent::new("World-Building"),
-        }
+        Self
     }
 
     fn get_system_prompt() -> &'static str {
@@ -508,8 +505,8 @@ The World-Building Agent serves as the foundation architect of storytelling, cre
 
 #[async_trait]
 impl Agent for WorldBuildingAgent {
-    fn name(&self) -> &str {
-        &self.base.name
+    fn name(&self) -> &'static str {
+        "World Building"
     }
 
     fn model_name(&self) -> &str {

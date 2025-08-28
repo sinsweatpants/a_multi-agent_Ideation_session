@@ -11,6 +11,7 @@
     pkgs.stdenv.cc
     pkgs.rustup
     pkgs.sudo
+    pkgs.killall
   ];
   # Sets environment variables in the workspace
   env = {

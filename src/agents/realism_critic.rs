@@ -1,16 +1,13 @@
+#![allow(dead_code)]
 use async_trait::async_trait;
 use super::base_agent::{Agent, BaseAgent, AgentError};
-use crate::language_model::{LanguageModel, ModelError};
+use crate::language_model::LanguageModel;
 
-pub struct RealismCriticAgent {
-    base: BaseAgent,
-}
+pub struct RealismCriticAgent;
 
 impl RealismCriticAgent {
     pub fn new() -> Self {
-        Self {
-            base: BaseAgent::new("Realism Critic"),
-        }
+        Self
     }
 
     fn get_system_prompt() -> &'static str {
@@ -428,8 +425,8 @@ Through rigorous attention to psychological authenticity, meticulous research of
 
 #[async_trait]
 impl Agent for RealismCriticAgent {
-    fn name(&self) -> &str {
-        &self.base.name
+    fn name(&self) -> &'static str {
+        "Realism Critic"
     }
 
     fn model_name(&self) -> &str {

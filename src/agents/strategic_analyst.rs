@@ -1,16 +1,13 @@
+#![allow(dead_code)]
 use async_trait::async_trait;
 use super::base_agent::{Agent, BaseAgent, AgentError};
-use crate::language_model::{LanguageModel, ModelError};
+use crate::language_model::LanguageModel;
 
-pub struct StrategicAnalystAgent {
-    base: BaseAgent,
-}
+pub struct StrategicAnalystAgent;
 
 impl StrategicAnalystAgent {
     pub fn new() -> Self {
-        Self {
-            base: BaseAgent::new("Strategic Analyst"),
-        }
+        Self
     }
 
     fn get_system_prompt() -> &'static str {
@@ -280,8 +277,8 @@ The Story Architect Agent serves as the master builder of dramatic narrative, en
 
 #[async_trait]
 impl Agent for StrategicAnalystAgent {
-    fn name(&self) -> &str {
-        &self.base.name
+    fn name(&self) -> &'static str {
+        "Strategic Analyst"
     }
 
     fn model_name(&self) -> &str {

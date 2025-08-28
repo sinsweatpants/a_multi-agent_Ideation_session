@@ -1,16 +1,13 @@
+#![allow(dead_code)]
 use async_trait::async_trait;
 use super::base_agent::{Agent, BaseAgent, AgentError};
-use crate::language_model::{LanguageModel, ModelError};
+use crate::language_model::LanguageModel;
 
-pub struct DialogueVoiceAgent {
-    base: BaseAgent,
-}
+pub struct DialogueVoiceAgent;
 
 impl DialogueVoiceAgent {
     pub fn new() -> Self {
-        Self {
-            base: BaseAgent::new("Dialogue & Voice"),
-        }
+        Self
     }
 
     fn get_system_prompt() -> &'static str {
@@ -445,8 +442,8 @@ The Dialogue & Voice Agent serves as the translation bridge between internal cha
 
 #[async_trait]
 impl Agent for DialogueVoiceAgent {
-    fn name(&self) -> &str {
-        &self.base.name
+    fn name(&self) -> &'static str {
+        "Dialogue & Voice"
     }
 
     fn model_name(&self) -> &str {

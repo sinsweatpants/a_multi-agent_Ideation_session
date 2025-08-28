@@ -1,16 +1,13 @@
+#![allow(dead_code)]
 use async_trait::async_trait;
 use super::base_agent::{Agent, BaseAgent, AgentError};
-use crate::language_model::{LanguageModel, ModelError};
+use crate::language_model::LanguageModel;
 
-pub struct CharacterDevelopmentAgent {
-    base: BaseAgent,
-}
+pub struct CharacterDevelopmentAgent;
 
 impl CharacterDevelopmentAgent {
     pub fn new() -> Self {
-        Self {
-            base: BaseAgent::new("Character Development"),
-        }
+        Self
     }
 
     fn get_system_prompt() -> &'static str {
@@ -439,8 +436,8 @@ The Character Development Agent serves as the heart of storytelling, ensuring th
 
 #[async_trait]
 impl Agent for CharacterDevelopmentAgent {
-    fn name(&self) -> &str {
-        &self.base.name
+    fn name(&self) -> &'static str {
+        "Character Development"
     }
 
     fn model_name(&self) -> &str {

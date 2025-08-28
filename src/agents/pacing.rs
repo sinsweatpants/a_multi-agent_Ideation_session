@@ -1,16 +1,13 @@
+#![allow(dead_code)]
 use async_trait::async_trait;
 use super::base_agent::{Agent, BaseAgent, AgentError};
-use crate::language_model::{LanguageModel, ModelError};
+use crate::language_model::LanguageModel;
 
-pub struct PacingAgent {
-    base: BaseAgent,
-}
+pub struct PacingAgent;
 
 impl PacingAgent {
     pub fn new() -> Self {
-        Self {
-            base: BaseAgent::new("Pacing"),
-        }
+        Self
     }
 
     fn get_system_prompt() -> &'static str {
@@ -487,8 +484,8 @@ The Pacing Agent serves as the temporal conductor of dramatic storytelling, orch
 
 #[async_trait]
 impl Agent for PacingAgent {
-    fn name(&self) -> &str {
-        &self.base.name
+    fn name(&self) -> &'static str {
+        "Pacing"
     }
 
     fn model_name(&self) -> &str {

@@ -1,16 +1,13 @@
+#![allow(dead_code)]
 use async_trait::async_trait;
 use super::base_agent::{Agent, BaseAgent, AgentError};
-use crate::language_model::{LanguageModel, ModelError};
+use crate::language_model::LanguageModel;
 
-pub struct ThemeAgent {
-    base: BaseAgent,
-}
+pub struct ThemeAgent;
 
 impl ThemeAgent {
     pub fn new() -> Self {
-        Self {
-            base: BaseAgent::new("Theme"),
-        }
+        Self
     }
 
     fn get_system_prompt() -> &'static str {
@@ -531,8 +528,8 @@ The Theme Agent serves as the philosophical soul of storytelling, ensuring that 
 
 #[async_trait]
 impl Agent for ThemeAgent {
-    fn name(&self) -> &str {
-        &self.base.name
+    fn name(&self) -> &'static str {
+        "Theme"
     }
 
     fn model_name(&self) -> &str {
